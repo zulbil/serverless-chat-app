@@ -27,12 +27,46 @@ const serverlessConfiguration: AWS = {
       minify: false,
       sourcemap: true,
       exclude: ['aws-sdk'],
-      target: 'node14',
+      target: 'node18',
       define: { 'require.resolve': undefined },
       platform: 'node',
       concurrency: 10,
     },
   },
+  resources: {
+    Resources: {
+      UserPool: {
+        Type: 'AWS::Cognito::UserPool',
+        Properties: {
+          UserPoolName: 'Serverless-Chat',
+          Schema: [
+            {
+              Name: 'email',
+              Required: true,
+              Mutable: true
+            }
+          ],
+          Policies: {
+            PasswordPoliciy: {
+              MinimumLength: 6
+            }
+          },
+          AutoVerifiedAttributes: ["email"]
+        }
+      },
+      UserClient: {
+        Type: 'AWS::Cognito::UserPoolClient',
+        Properties: {
+          ClientName: 'user-pool-ui',
+          GenerateSecret: false,
+          UserPoolId: { 'Fn::GetAtt': ['UserPool', 'Arn']},
+          AccessTokenValidity: 5,
+          IdTokenValidity: 5,
+          ExplicitAuthFlows: ["ADMIN_NO_SRP_AUTH"]
+        }
+      }
+    }
+  }
 };
 
 module.exports = serverlessConfiguration;
