@@ -4,7 +4,7 @@ import hello from '@functions/hello';
 
 const serverlessConfiguration: AWS = {
   service: 'serverless-chat-app',
-  frameworkVersion: '4',
+  frameworkVersion: '3',
   plugins: ['serverless-esbuild'],
   provider: {
     name: 'aws',
@@ -47,7 +47,7 @@ const serverlessConfiguration: AWS = {
             }
           ],
           Policies: {
-            PasswordPoliciy: {
+            PasswordPolicy: {
               MinimumLength: 6
             }
           },
