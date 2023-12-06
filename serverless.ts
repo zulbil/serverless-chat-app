@@ -1,6 +1,7 @@
 import type { AWS } from '@serverless/typescript';
 
 import hello from '@functions/hello';
+import { signupHandler, loginHandler } from '@functions/user'
 
 const serverlessConfiguration: AWS = {
   service: 'serverless-chat-app',
@@ -16,10 +17,16 @@ const serverlessConfiguration: AWS = {
     environment: {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
       NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000',
+      USER_CLIENT_ID: { 'Ref': 'UserClient'},
+      USER_POOL_ID: { 'Ref': 'UserPool' }
     },
   },
   // import the function via paths
-  functions: { hello },
+  functions: { 
+    hello,
+    signupHandler,
+    loginHandler 
+  },
   package: { individually: true },
   custom: {
     esbuild: {
@@ -59,7 +66,7 @@ const serverlessConfiguration: AWS = {
         Properties: {
           ClientName: 'user-pool-ui',
           GenerateSecret: false,
-          UserPoolId: { 'Fn::GetAtt': ['UserPool', 'Arn']},
+          UserPoolId: { 'Ref': 'UserPool' },
           AccessTokenValidity: 5,
           IdTokenValidity: 5,
           ExplicitAuthFlows: ["ADMIN_NO_SRP_AUTH"]

@@ -8,6 +8,15 @@ export default {
       http: {
         method: 'post',
         path: 'hello',
+        cors: true,
+        authorizer: {
+          name: 'PrivateAuthorizer',
+          type: 'COGNITO_USER_POOLS',
+          arn: {
+            'Fn::GetAtt': ['UserPool', 'Arn']
+          },
+          claims: ["email"]
+        },
         request: {
           schemas: {
             'application/json': schema,
