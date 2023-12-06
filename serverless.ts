@@ -71,6 +71,43 @@ const serverlessConfiguration: AWS = {
           IdTokenValidity: 5,
           ExplicitAuthFlows: ["ADMIN_NO_SRP_AUTH"]
         }
+      },
+      LambdaRole: {
+        Type: 'AWS::IAM::Role',
+        Properties: {
+          RoleName: 'LambdaRole',
+          AssumeRolePolicyDocument: {
+            Version: '2012-10-17',
+            Statement: [
+              {
+                Effect: 'Allow',
+                Principal: {
+                  Service: 'lambda.amazonaws.com',
+                },
+                Action: 'sts:AssumeRole'
+              }
+            ]
+          },
+          Policies: [
+            {
+              PolicyName: 'LambdaPolicy',
+              PolicyDocument: {
+                Version: '2012-10-17',
+                Statement: [
+                  {
+                    Effect: "Allow",
+                    Action: [
+                      "logs:CreateLogGroup",
+                      "logs:CreateLogStream",
+                      "logs:PutLogEvents"
+                    ],
+                    Resource: ["arn:aws:logs:*:*:*"]
+                  }
+                ]
+              }
+            }
+          ]
+        }
       }
     }
   }

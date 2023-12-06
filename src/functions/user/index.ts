@@ -17,6 +17,7 @@ export const signupHandler = {
       },
     },
   ],
+  role: 'LambdaRole'
 };
 
 
@@ -36,4 +37,5 @@ export const loginHandler = {
       },
     },
   ],
+  role: 'LambdaRole'
 };
