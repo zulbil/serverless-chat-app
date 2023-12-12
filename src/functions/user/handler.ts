@@ -65,7 +65,7 @@ const userVerificationHandler : ValidatedEventAPIGatewayProxyEvent<typeof comfir
     console.log('Confirmation Response :', JSON.stringify(comfirm));
 
     return formatJSONResponse({
-      message: 'User verified successfully ...'
+      message: 'User verified successfully ...',
     });
 
   } catch (error) {

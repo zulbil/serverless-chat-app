@@ -3,10 +3,12 @@ import {
     CognitoIdentityProviderClient,
     ConfirmSignUpCommand,
     AuthFlowType,
-    InitiateAuthCommand
+    InitiateAuthCommand,
+    AdminInitiateAuthCommand
 } from "@aws-sdk/client-cognito-identity-provider";
 
 const ClientId = process.env.USER_CLIENT_ID;
+const UserPoolId = process.env.USER_POOL_ID;
   
 export const signUp = async ({ Username, Password, email }) => {
     try {
@@ -29,13 +31,14 @@ export const initiateAuth = async ({ Username, Password }) => {
     try {
       const client = new CognitoIdentityProviderClient({});
   
-      const command = new InitiateAuthCommand({
-        AuthFlow: AuthFlowType.USER_PASSWORD_AUTH,
+      const command = new AdminInitiateAuthCommand({
+        AuthFlow: AuthFlowType.ADMIN_USER_PASSWORD_AUTH,
         AuthParameters: {
           USERNAME: Username,
           PASSWORD: Password,
         },
-        ClientId
+        ClientId,
+        UserPoolId
       });
       return await client.send(command); 
     } catch (error) {
