@@ -1,7 +1,7 @@
 import type { AWS } from '@serverless/typescript';
 
 import hello from '@functions/hello';
-import { signupHandler, loginHandler } from '@functions/user'
+import { signup, login, verification } from '@functions/user'
 
 const serverlessConfiguration: AWS = {
   service: 'serverless-chat-app',
@@ -24,8 +24,9 @@ const serverlessConfiguration: AWS = {
   // import the function via paths
   functions: { 
     hello,
-    signupHandler,
-    loginHandler 
+    signup,
+    login,
+    verification
   },
   package: { individually: true },
   custom: {
@@ -69,7 +70,7 @@ const serverlessConfiguration: AWS = {
           UserPoolId: { 'Ref': 'UserPool' },
           AccessTokenValidity: 5,
           IdTokenValidity: 5,
-          ExplicitAuthFlows: ["ADMIN_NO_SRP_AUTH"]
+          ExplicitAuthFlows: ["ADMIN_NO_SRP_AUTH", "USER_PASSWORD_AUTH"]
         }
       },
       LambdaRole: {
