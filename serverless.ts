@@ -103,6 +103,13 @@ const serverlessConfiguration: AWS = {
                       "logs:PutLogEvents"
                     ],
                     Resource: ["arn:aws:logs:*:*:*"]
+                  },
+                  {
+                    Effect: "Allow",
+                    Action: [
+                      "cognito-idp:AdminInitiateAuth"
+                    ],
+                    Resource: ["*"]
                   }
                 ]
               }

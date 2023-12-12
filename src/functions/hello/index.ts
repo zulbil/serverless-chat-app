@@ -7,7 +7,7 @@ export default {
     {
       http: {
         method: 'post',
-        path: 'hello',
+        path: 'user/hello',
         cors: true,
         authorizer: {
           name: 'PrivateAuthorizer',

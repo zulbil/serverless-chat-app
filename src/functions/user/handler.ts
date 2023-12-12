@@ -42,7 +42,8 @@ const loginHandler : ValidatedEventAPIGatewayProxyEvent<typeof loginSchema> = as
     console.log('User Signed In', JSON.stringify(userSignedIn));
 
     return formatJSONResponse({
-      message: 'User logged in successfully ...'
+      message: 'User logged in successfully ...',
+      token: userSignedIn.AuthenticationResult.IdToken
     });
 
   } catch (error) {
