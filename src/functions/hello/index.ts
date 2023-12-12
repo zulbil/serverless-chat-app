@@ -1,4 +1,3 @@
-import schema from './schema';
 import { handlerPath } from '@libs/handler-resolver';
 
 export default {
@@ -6,8 +5,8 @@ export default {
   events: [
     {
       http: {
-        method: 'post',
-        path: 'user/hello',
+        method: 'get',
+        path: 'hello',
         cors: true,
         authorizer: {
           name: 'PrivateAuthorizer',
@@ -16,12 +15,7 @@ export default {
             'Fn::GetAtt': ['UserPool', 'Arn']
           },
           claims: ["email"]
-        },
-        request: {
-          schemas: {
-            'application/json': schema,
-          },
-        },
+        }
       },
     },
   ],
