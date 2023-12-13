@@ -8,7 +8,6 @@ export default {
         method: 'get',
         path: 'user/hello',
         cors: true,
-        private: true,
         authorizer: {
           name: 'PrivateAuthorizer',
           type: 'COGNITO_USER_POOLS',
