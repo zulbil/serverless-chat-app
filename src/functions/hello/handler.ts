@@ -1,14 +1,14 @@
-import type { ValidatedEventAPIGatewayProxyEvent } from '@libs/api-gateway';
 import { formatJSONResponse } from '@libs/api-gateway';
 import { middyfy } from '@libs/lambda';
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
-import schema from './schema';
 
-const hello: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (event) => {
-  return formatJSONResponse({
-    message: `Hello ${event.body.name}, welcome to the exciting Serverless world!`,
-    event,
-  });
-};
+export const main = middyfy(
+  async (event: APIGatewayProxyEvent) : Promise<APIGatewayProxyResult> => {
+    console.log('Event :',event);
+    return formatJSONResponse({
+      message: `Email ${event.requestContext.authorizer.claims.email} has been authorized`
+    });
+  }
+);
 
-export const main = middyfy(hello);
