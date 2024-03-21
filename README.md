@@ -70,12 +70,23 @@ The project code base is mainly located within the `src` folder. This folder is 
 │   │   │   ├── mock.json       # `Hello` lambda input parameter, if any, for local invocation
 │   │   │   └── schema.ts       # `Hello` lambda input event JSON-Schema
 │   │   │
+│   │   ├── user
+│   │   │   ├── mock            # `User` mock folder
+│   │   │   ├── schema          # `User` schema folder 
+│   │   │   ├── handler.ts      # `User` lambda source code
+│   │   │   └── index.ts        # `User` lambda input event JSON-Schema
+|   |   |
+|   |   |
+|   |   |
 │   │   └── index.ts            # Import/export of all lambda configurations
 │   │
-│   └── libs                    # Lambda shared code
-│       └── apiGateway.ts       # API Gateway specific helpers
-│       └── handlerResolver.ts  # Sharable library for resolving lambda handlers
-│       └── lambda.ts           # Lambda middleware
+│   |── libs                    # Lambda shared code
+│   |   └── apiGateway.ts       # API Gateway specific helpers
+│   |   └── handlerResolver.ts  # Sharable library for resolving lambda handlers
+│   |   └── lambda.ts           # Lambda middleware
+│   │
+│   └── services                    # services
+│       └── UserAuthService.ts      # Cognito Service helper
 │
 ├── package.json
 ├── serverless.ts               # Serverless service file
