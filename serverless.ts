@@ -2,6 +2,8 @@ import type { AWS } from '@serverless/typescript';
 
 import hello from '@functions/hello';
 import { signup, login, verification } from '@functions/user'
+import { sendMessage } from '@functions/messages'
+import { connect, disconnect, defaultMessageHandler } from '@functions/websocket'
 
 const serverlessConfiguration: AWS = {
   service: 'serverless-chat-app',
@@ -13,6 +15,7 @@ const serverlessConfiguration: AWS = {
     apiGateway: {
       minimumCompressionSize: 1024,
       shouldStartNameWithService: true,
+      websocketApiId: 'chatAppWebsocketApi'
     },
     environment: {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
@@ -26,7 +29,11 @@ const serverlessConfiguration: AWS = {
     hello,
     signup,
     login,
-    verification
+    verification,
+    sendMessage,
+    connect,
+    disconnect,
+    defaultMessageHandler
   },
   package: { individually: true },
   custom: {
