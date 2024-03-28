@@ -1,6 +1,5 @@
 import type { AWS } from '@serverless/typescript';
 
-import hello from '@functions/hello';
 import { signup, login, verification } from '@functions/user'
 import { sendMessage } from '@functions/messages'
 import { connect, disconnect, defaultMessageHandler } from '@functions/websocket'
@@ -26,7 +25,6 @@ const serverlessConfiguration: AWS = {
   },
   // import the function via paths
   functions: { 
-    hello,
     signup,
     login,
     verification,
