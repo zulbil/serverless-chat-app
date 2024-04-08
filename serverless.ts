@@ -11,6 +11,7 @@ const serverlessConfiguration: AWS = {
   provider: {
     name: 'aws',
     runtime: 'nodejs18.x',
+    stage: "${opt:stage, 'dev'}",
     apiGateway: {
       minimumCompressionSize: 1024,
       shouldStartNameWithService: true,
@@ -20,7 +21,11 @@ const serverlessConfiguration: AWS = {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
       NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000',
       USER_CLIENT_ID: { 'Ref': 'UserClient'},
-      USER_POOL_ID: { 'Ref': 'UserPool' }
+      USER_POOL_ID: { 'Ref': 'UserPool' },
+      MESSAGES_TABLE: 'Messages-${self:provider.stage}',
+      CHATROOM_TABLE: 'ChatRooms-${self:provider.stage}',
+      CONNECTIONS_TABLE: 'Connections-${self:provider.stage}',
+      APP_NAME: 'serverless-chat-app'
     },
   },
   // import the function via paths
@@ -121,7 +126,168 @@ const serverlessConfiguration: AWS = {
             }
           ]
         }
-      }
+      },
+      MessagesDynamoDBtable: {
+        Type: "AWS::DynamoDB::Table",
+        Properties: {
+          TableName: "${self:provider.environment.MESSAGES_TABLE}",
+          BillingMode: 'PAY_PER_REQUEST',
+          AttributeDefinitions: [
+            {
+              AttributeName: "senderId",
+              AttributeType: "S"
+            },
+            {
+              AttributeName: "receiverId",
+              AttributeType: "S"
+            },
+            {
+              AttributeName: "chatRoomId",
+              AttributeType: "S"
+            }, 
+            {
+              AttributeName: "messageId",
+              AttributeType: "S"
+            },
+            {
+              AttributeName: "timestamp",
+              AttributeType: "S"
+            },
+            {
+              AttributeName: "messageContent",
+              AttributeType: "S"
+            },
+            {
+              AttributeName: "messageType",
+              AttributeType: "S"
+            },
+            {
+              AttributeName: "readReceipts",
+              AttributeType: "S"
+            },
+            {
+              AttributeName: "additionalMetadata",
+              AttributeType: "S"
+            }
+          ],
+          KeySchema: [
+            {
+              AttributeName: "messageId",
+              KeyType: "HASH"
+            },
+            {
+              AttributeName: "timestamp",
+              KeyType: "RANGE"
+            }
+          ],
+          GlobalSecondaryIndexes: [
+            {
+              IndexName: "ChatRoomIndex", //alows you to query all messages in a particlura chat room
+              KeySchema: [
+                {
+                  AttributeName: 'chatRoomId',
+                  KeyType: 'HASH'
+                },
+                {
+                  AttributeName: "timestamp",
+                  KeyType: "RANGE"
+                }
+              ],
+              Projection: {
+                ProjectionType: 'ALL'
+              },
+              ProvisionedThroughput: {
+                ReadCapacityUnits: 5,
+                WriteCapacityUnits: 5,
+              }
+            }
+          ]
+        }
+      },
+      ChatRoomDynamoDBtable: {
+        Type: "AWS::DynamoDB::Table",
+        Properties: {
+          TableName: "${self:provider.environment.CHATROOM_TABLE}",
+          BillingMode: 'PAY_PER_REQUEST',
+          AttributeDefinitions: [
+            {
+              AttributeName: "chatRoomId",
+              AttributeType: "S",
+            },
+            {
+              AttributeName: "chatRoomName",
+              AttributeType: "S",
+            },
+            {
+              AttributeName: "memberId",
+              AttributeType: "S",
+            },
+            {
+              AttributeName: "createdAt",
+              AttributeType: "S",
+            },
+            {
+              AttributeName: "lastMessage",
+              AttributeType: "S",
+            },
+            {
+              AttributeName: "chatRoomType",
+              AttributeType: "S",
+            },
+            {
+              AttributeName: "additionalInfo",
+              AttributeType: "S",
+            },
+          ],
+          KeySchema: [
+            {
+              AttributeName: "chatRoomId",
+              KeyType: "HASH"
+            },
+            {
+              AttributeName: "createdAt",
+              KeyType: "RANGE"
+            }
+          ],
+          GlobalSecondaryIndexes: [
+            {
+              IndexName: "MemberIndex",
+              KeySchema: [
+                {
+                  AttributeName: 'memberId',
+                  KeyType: 'HASH'
+                }
+              ],
+              Projection: {
+                ProjectionType: 'ALL'
+              },
+              ProvisionedThroughput: {
+                ReadCapacityUnits: 5,
+                WriteCapacityUnits: 5,
+              }
+            }
+          ]
+        }
+      },
+      WebSocketConectionsDynamoDBtable: {
+        Type: "AWS::DynamoDB::Table",
+        Properties: {
+          TableName: "${self:provider.environment.CONNECTIONS_TABLE}",
+          BillingMode: 'PAY_PER_REQUEST',
+          AttributeDefinitions: [
+            {
+              AttributeName: "id",
+              AttributeType: "S",
+            }
+          ],
+          KeySchema: [
+            {
+              AttributeName: "id",
+              KeyType: "HASH"
+            }
+          ]
+        }
+      },
     }
   }
 };
