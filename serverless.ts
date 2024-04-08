@@ -195,10 +195,6 @@ const serverlessConfiguration: AWS = {
               ],
               Projection: {
                 ProjectionType: 'ALL'
-              },
-              ProvisionedThroughput: {
-                ReadCapacityUnits: 5,
-                WriteCapacityUnits: 5,
               }
             }
           ]
@@ -260,10 +256,6 @@ const serverlessConfiguration: AWS = {
               ],
               Projection: {
                 ProjectionType: 'ALL'
-              },
-              ProvisionedThroughput: {
-                ReadCapacityUnits: 5,
-                WriteCapacityUnits: 5,
               }
             }
           ]
