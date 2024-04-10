@@ -19,6 +19,7 @@ const serverlessConfiguration: AWS = {
     },
     environment: {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
+      REGION_URL: 'us-east-1',
       NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000',
       USER_CLIENT_ID: { 'Ref': 'UserClient'},
       USER_POOL_ID: { 'Ref': 'UserPool' },
