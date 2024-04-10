@@ -15,7 +15,7 @@ const serverlessConfiguration: AWS = {
     apiGateway: {
       minimumCompressionSize: 1024,
       shouldStartNameWithService: true,
-      websocketApiId: 'chatAppWebsocketApi'
+      //websocketApiId: 'chatAppWebsocketApi'
     },
     environment: {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
@@ -134,11 +134,7 @@ const serverlessConfiguration: AWS = {
           BillingMode: 'PAY_PER_REQUEST',
           AttributeDefinitions: [
             {
-              AttributeName: "senderId",
-              AttributeType: "S"
-            },
-            {
-              AttributeName: "receiverId",
+              AttributeName: "id",
               AttributeType: "S"
             },
             {
@@ -146,33 +142,13 @@ const serverlessConfiguration: AWS = {
               AttributeType: "S"
             }, 
             {
-              AttributeName: "messageId",
-              AttributeType: "S"
-            },
-            {
               AttributeName: "timestamp",
-              AttributeType: "S"
-            },
-            {
-              AttributeName: "messageContent",
-              AttributeType: "S"
-            },
-            {
-              AttributeName: "messageType",
-              AttributeType: "S"
-            },
-            {
-              AttributeName: "readReceipts",
-              AttributeType: "S"
-            },
-            {
-              AttributeName: "additionalMetadata",
               AttributeType: "S"
             }
           ],
           KeySchema: [
             {
-              AttributeName: "messageId",
+              AttributeName: "id",
               KeyType: "HASH"
             },
             {
@@ -207,13 +183,13 @@ const serverlessConfiguration: AWS = {
           BillingMode: 'PAY_PER_REQUEST',
           AttributeDefinitions: [
             {
-              AttributeName: "chatRoomId",
+              AttributeName: "id",
               AttributeType: "S",
             },
-            {
-              AttributeName: "chatRoomName",
-              AttributeType: "S",
-            },
+            // {
+            //   AttributeName: "chatRoomName",
+            //   AttributeType: "S",
+            // },
             {
               AttributeName: "memberId",
               AttributeType: "S",
@@ -221,23 +197,23 @@ const serverlessConfiguration: AWS = {
             {
               AttributeName: "createdAt",
               AttributeType: "S",
-            },
-            {
-              AttributeName: "lastMessage",
-              AttributeType: "S",
-            },
-            {
-              AttributeName: "chatRoomType",
-              AttributeType: "S",
-            },
-            {
-              AttributeName: "additionalInfo",
-              AttributeType: "S",
-            },
+            }
+            // {
+            //   AttributeName: "lastMessage",
+            //   AttributeType: "S",
+            // },
+            // {
+            //   AttributeName: "chatRoomType",
+            //   AttributeType: "S",
+            // },
+            // {
+            //   AttributeName: "additionalInfo",
+            //   AttributeType: "S",
+            // },
           ],
           KeySchema: [
             {
-              AttributeName: "chatRoomId",
+              AttributeName: "id",
               KeyType: "HASH"
             },
             {
