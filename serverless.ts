@@ -14,8 +14,7 @@ const serverlessConfiguration: AWS = {
     stage: "${opt:stage, 'dev'}",
     apiGateway: {
       minimumCompressionSize: 1024,
-      shouldStartNameWithService: true,
-      //websocketApiId: 'chatAppWebsocketApi'
+      shouldStartNameWithService: true
     },
     environment: {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
@@ -61,6 +60,16 @@ const serverlessConfiguration: AWS = {
           Schema: [
             {
               Name: 'email',
+              Required: true,
+              Mutable: true
+            },
+            {
+              Name: 'lastname',
+              Required: true,
+              Mutable: true
+            },
+            {
+              Name: 'firstname',
               Required: true,
               Mutable: true
             }
