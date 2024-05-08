@@ -7,3 +7,4 @@ const dynamoDBClient = (): DynamoDBClient => {
 };
 
 export default dynamoDBClient; 
+

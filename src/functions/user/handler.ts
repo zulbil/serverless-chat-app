@@ -11,10 +11,12 @@ const signupHandler : ValidatedEventAPIGatewayProxyEvent<typeof signupSchema> = 
     const Username = event.body?.username;
     const Password = event.body?.password;
     const email = event.body?.email;
+    const firstname = event.body?.firstname;
+    const lastname = event.body?.lastname;
 
     console.log('Event Body ', event.body);
 
-    const userSignedUp = await signUp({ Username, Password, email });
+    const userSignedUp = await signUp({ Username, Password, email, firstname, lastname });
 
     console.log('User Signed Up', userSignedUp);
 

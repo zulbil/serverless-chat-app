@@ -2,7 +2,6 @@ import type { AWS } from '@serverless/typescript';
 
 import { signup, login, verification } from '@functions/user'
 import { sendMessage } from '@functions/messages'
-import { connect, disconnect, defaultMessageHandler } from '@functions/websocket'
 
 const serverlessConfiguration: AWS = {
   service: 'serverless-chat-app',
@@ -22,21 +21,43 @@ const serverlessConfiguration: AWS = {
       NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000',
       USER_CLIENT_ID: { 'Ref': 'UserClient'},
       USER_POOL_ID: { 'Ref': 'UserPool' },
-      MESSAGES_TABLE: 'Messages-${self:provider.stage}',
-      CHATROOM_TABLE: 'ChatRooms-${self:provider.stage}',
+      CHATMESSAGES_TABLE: 'ChatMessages-${self:provider.stage}',
+      CHATS_TABLE: 'Chats-${self:provider.stage}',
+      CHATS_INDEX: 'ChatsIndex-${self:provider.stage}',
       CONNECTIONS_TABLE: 'Connections-${self:provider.stage}',
       APP_NAME: 'serverless-chat-app'
     },
+    iam: {
+      role: {
+        statements: [{
+          Effect: "Allow",
+          Action: [
+            "dynamodb:DescribeTable",
+            "dynamodb:Query",
+            "dynamodb:Scan",
+            "dynamodb:GetItem",
+            "dynamodb:PutItem",
+            "dynamodb:UpdateItem",
+            "dynamodb:DeleteItem",
+          ],
+          Resource: [
+            {
+              'Fn::GetAtt': ['ChatMessagesTable', 'Arn']
+            },
+            {
+              'Fn::GetAtt': ['ChatsTable', 'Arn']
+            }
+          ]
+        }],
+      },
+    }
   },
   // import the function via paths
   functions: { 
     signup,
     login,
     verification,
-    sendMessage,
-    connect,
-    disconnect,
-    defaultMessageHandler
+    sendMessage
   },
   package: { individually: true },
   custom: {
@@ -137,10 +158,10 @@ const serverlessConfiguration: AWS = {
           ]
         }
       },
-      MessagesDynamoDBtable: {
+      ChatsTable: {
         Type: "AWS::DynamoDB::Table",
         Properties: {
-          TableName: "${self:provider.environment.MESSAGES_TABLE}",
+          TableName: "${self:provider.environment.CHATS_TABLE}",
           BillingMode: 'PAY_PER_REQUEST',
           AttributeDefinitions: [
             {
@@ -148,11 +169,23 @@ const serverlessConfiguration: AWS = {
               AttributeType: "S"
             },
             {
-              AttributeName: "chatRoomId",
+              AttributeName: "participants",
               AttributeType: "S"
             }, 
             {
-              AttributeName: "timestamp",
+              AttributeName: "createdAt",
+              AttributeType: "S"
+            },
+            {
+              AttributeName: "lastMessage",
+              AttributeType: "S"
+            },
+            {
+              AttributeName: "lastMessageTimestamp",
+              AttributeType: "S"
+            },
+            {
+              AttributeName: "chatStatus",
               AttributeType: "S"
             }
           ],
@@ -165,13 +198,60 @@ const serverlessConfiguration: AWS = {
               AttributeName: "timestamp",
               KeyType: "RANGE"
             }
+          ]
+        }
+      },
+      ChatMessagestable: {
+        Type: "AWS::DynamoDB::Table",
+        Properties: {
+          TableName: "${self:provider.environment.CHATMESSAGES_TABLE}",
+          BillingMode: 'PAY_PER_REQUEST',
+          AttributeDefinitions: [
+            {
+              AttributeName: "messageId",
+              AttributeType: "S",
+            },
+            {
+              AttributeName: "timestamp",
+              AttributeType: "S",
+            },
+            {
+              AttributeName: "chatId",
+              AttributeType: "S",
+            },
+            {
+              AttributeName: "senderId",
+              AttributeType: "S",
+            },
+            {
+              AttributeName: "messageText",
+              AttributeType: "S",
+            },
+            {
+              AttributeName: "mediaUrls",
+              AttributeType: "S",
+            },
+            {
+              AttributeName: "isUpdated",
+              AttributeType: "S",
+            }
+          ],
+          KeySchema: [
+            {
+              AttributeName: "messageId",
+              KeyType: "HASH"
+            },
+            {
+              AttributeName: "timestamp",
+              KeyType: "RANGE"
+            }
           ],
           GlobalSecondaryIndexes: [
             {
-              IndexName: "ChatRoomIndex", //alows you to query all messages in a particlura chat room
+              IndexName: "${self:provider.environment.CHATS_INDEX}",
               KeySchema: [
                 {
-                  AttributeName: 'chatRoomId',
+                  AttributeName: 'chatId',
                   KeyType: 'HASH'
                 },
                 {
@@ -180,92 +260,13 @@ const serverlessConfiguration: AWS = {
                 }
               ],
               Projection: {
-                ProjectionType: 'ALL'
+                ProjectionType: 'INCLUDE',
+                NonKeyAttributes: ['messageId', 'senderId', 'messageText', 'mediaUrls', 'isUpdated']
               }
             }
           ]
         }
-      },
-      ChatRoomDynamoDBtable: {
-        Type: "AWS::DynamoDB::Table",
-        Properties: {
-          TableName: "${self:provider.environment.CHATROOM_TABLE}",
-          BillingMode: 'PAY_PER_REQUEST',
-          AttributeDefinitions: [
-            {
-              AttributeName: "id",
-              AttributeType: "S",
-            },
-            // {
-            //   AttributeName: "chatRoomName",
-            //   AttributeType: "S",
-            // },
-            {
-              AttributeName: "memberId",
-              AttributeType: "S",
-            },
-            {
-              AttributeName: "createdAt",
-              AttributeType: "S",
-            }
-            // {
-            //   AttributeName: "lastMessage",
-            //   AttributeType: "S",
-            // },
-            // {
-            //   AttributeName: "chatRoomType",
-            //   AttributeType: "S",
-            // },
-            // {
-            //   AttributeName: "additionalInfo",
-            //   AttributeType: "S",
-            // },
-          ],
-          KeySchema: [
-            {
-              AttributeName: "id",
-              KeyType: "HASH"
-            },
-            {
-              AttributeName: "createdAt",
-              KeyType: "RANGE"
-            }
-          ],
-          GlobalSecondaryIndexes: [
-            {
-              IndexName: "MemberIndex",
-              KeySchema: [
-                {
-                  AttributeName: 'memberId',
-                  KeyType: 'HASH'
-                }
-              ],
-              Projection: {
-                ProjectionType: 'ALL'
-              }
-            }
-          ]
-        }
-      },
-      WebSocketConectionsDynamoDBtable: {
-        Type: "AWS::DynamoDB::Table",
-        Properties: {
-          TableName: "${self:provider.environment.CONNECTIONS_TABLE}",
-          BillingMode: 'PAY_PER_REQUEST',
-          AttributeDefinitions: [
-            {
-              AttributeName: "id",
-              AttributeType: "S",
-            }
-          ],
-          KeySchema: [
-            {
-              AttributeName: "id",
-              KeyType: "HASH"
-            }
-          ]
-        }
-      },
+      }
     }
   }
 };
