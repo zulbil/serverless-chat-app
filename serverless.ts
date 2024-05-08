@@ -82,16 +82,18 @@ const serverlessConfiguration: AWS = {
             {
               Name: 'email',
               Required: true,
-              Mutable: true
+              Mutable: false 
             },
             {
               Name: 'lastname',
-              Required: true,
+              AttributeDataType: 'String',
+              Required: false,
               Mutable: true
             },
             {
               Name: 'firstname',
-              Required: true,
+              AttributeDataType: 'String',
+              Required: false,
               Mutable: true
             }
           ],
@@ -169,23 +171,7 @@ const serverlessConfiguration: AWS = {
               AttributeType: "S"
             },
             {
-              AttributeName: "participants",
-              AttributeType: "S"
-            }, 
-            {
-              AttributeName: "createdAt",
-              AttributeType: "S"
-            },
-            {
-              AttributeName: "lastMessage",
-              AttributeType: "S"
-            },
-            {
               AttributeName: "lastMessageTimestamp",
-              AttributeType: "S"
-            },
-            {
-              AttributeName: "chatStatus",
               AttributeType: "S"
             }
           ],
@@ -195,7 +181,7 @@ const serverlessConfiguration: AWS = {
               KeyType: "HASH"
             },
             {
-              AttributeName: "timestamp",
+              AttributeName: "lastMessageTimestamp",
               KeyType: "RANGE"
             }
           ]
@@ -217,22 +203,6 @@ const serverlessConfiguration: AWS = {
             },
             {
               AttributeName: "chatId",
-              AttributeType: "S",
-            },
-            {
-              AttributeName: "senderId",
-              AttributeType: "S",
-            },
-            {
-              AttributeName: "messageText",
-              AttributeType: "S",
-            },
-            {
-              AttributeName: "mediaUrls",
-              AttributeType: "S",
-            },
-            {
-              AttributeName: "isUpdated",
               AttributeType: "S",
             }
           ],
