@@ -1,62 +1,13 @@
 import messageSchema from './schema/messageSchema';
 import { handlerPath } from '@libs/handler-resolver';
 
-export const sendMessage = {
-  handler: `${handlerPath(__dirname)}/handler.sendMessage`,
+export const addChat = {
+  handler: `${handlerPath(__dirname)}/handler.createChat`,
   events: [
     {
       http: {
         method: 'POST',
-        path: 'chats/{chatId}/messages',
-        cors: true,
-        request: {
-          schemas: {
-            'application/json': messageSchema,
-          },
-        },
-        authorizer: {
-          name: 'PrivateAuthorizer',
-          type: 'COGNITO_USER_POOLS',
-          arn: {
-            'Fn::GetAtt': ['UserPool', 'Arn']
-          },
-          claims: ["email"]
-        }
-      },
-    },
-  ],
-  role: 'LambdaRole'
-};
-
-export const removeMessage = {
-  handler: `${handlerPath(__dirname)}/handler.removeMessage`,
-  events: [
-    {
-      http: {
-        method: 'DELETE',
-        path: 'chats/{chatId}/messages/{messageId}',
-        cors: true,
-        authorizer: {
-          name: 'PrivateAuthorizer',
-          type: 'COGNITO_USER_POOLS',
-          arn: {
-            'Fn::GetAtt': ['UserPool', 'Arn']
-          },
-          claims: ["email"]
-        }
-      },
-    },
-  ],
-  role: 'LambdaRole'
-};
-
-export const updateMessage = {
-  handler: `${handlerPath(__dirname)}/handler.updateMessage`,
-  events: [
-    {
-      http: {
-        method: 'PUT',
-        path: 'chats/{chatId}/messages/{messageId}',
+        path: 'chats',
         cors: true,
         request: {
           schemas: {
@@ -78,13 +29,36 @@ export const updateMessage = {
 };
 
 
-export const getAllMessages = {
-  handler: `${handlerPath(__dirname)}/handler.getAllMessages`,
+export const getAllChats = {
+  handler: `${handlerPath(__dirname)}/handler.getAllChats`,
   events: [
     {
       http: {
         method: 'GET',
-        path: 'chats/{chatId}/messages',
+        path: 'chats',
+        cors: true,
+        authorizer: {
+          name: 'PrivateAuthorizer',
+          type: 'COGNITO_USER_POOLS',
+          arn: {
+            'Fn::GetAtt': ['UserPool', 'Arn']
+          },
+          claims: ["email"]
+        }
+      },
+    },
+  ],
+  role: 'LambdaRole'
+};
+
+
+export const removeChat = {
+  handler: `${handlerPath(__dirname)}/handler.removeChat`,
+  events: [
+    {
+      http: {
+        method: 'DELETE',
+        path: 'chats/{chatId}',
         cors: true,
         authorizer: {
           name: 'PrivateAuthorizer',

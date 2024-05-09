@@ -1,7 +1,7 @@
 import type { AWS } from '@serverless/typescript';
 
 import { signup, login, verification } from '@functions/user'
-import { sendMessage } from '@functions/messages'
+import {  } from '@functions/chats'
 
 const serverlessConfiguration: AWS = {
   service: 'serverless-chat-app',
@@ -92,6 +92,12 @@ const serverlessConfiguration: AWS = {
             },
             {
               Name: 'firstname',
+              AttributeDataType: 'String',
+              Required: false,
+              Mutable: true
+            },
+            {
+              Name: 'photoUrl',
               AttributeDataType: 'String',
               Required: false,
               Mutable: true
