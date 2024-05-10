@@ -1,4 +1,4 @@
-import messageSchema from './schema/messageSchema';
+import createChatSchema from './schema/createChatSchema';
 import { handlerPath } from '@libs/handler-resolver';
 
 export const addChat = {
@@ -11,7 +11,7 @@ export const addChat = {
         cors: true,
         request: {
           schemas: {
-            'application/json': messageSchema,
+            'application/json': createChatSchema,
           },
         },
         authorizer: {
@@ -36,6 +36,29 @@ export const getAllChats = {
       http: {
         method: 'GET',
         path: 'chats',
+        cors: true,
+        authorizer: {
+          name: 'PrivateAuthorizer',
+          type: 'COGNITO_USER_POOLS',
+          arn: {
+            'Fn::GetAtt': ['UserPool', 'Arn']
+          },
+          claims: ["email"]
+        }
+      },
+    },
+  ],
+  role: 'LambdaRole'
+};
+
+
+export const updateChat = {
+  handler: `${handlerPath(__dirname)}/handler.updateChat`,
+  events: [
+    {
+      http: {
+        method: 'PUT',
+        path: 'chats/{chatId}',
         cors: true,
         authorizer: {
           name: 'PrivateAuthorizer',

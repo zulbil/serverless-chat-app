@@ -1,7 +1,11 @@
 import type { AWS } from '@serverless/typescript';
 
 import { signup, login, verification } from '@functions/user'
-import {  } from '@functions/chats'
+import { 
+  addChat, 
+  getAllChats, 
+  removeChat 
+} from '@functions/chats'
 
 const serverlessConfiguration: AWS = {
   service: 'serverless-chat-app',
@@ -57,7 +61,9 @@ const serverlessConfiguration: AWS = {
     signup,
     login,
     verification,
-    sendMessage
+    addChat,
+    getAllChats,
+    removeChat
   },
   package: { individually: true },
   custom: {
