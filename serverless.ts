@@ -25,7 +25,7 @@ const serverlessConfiguration: AWS = {
       NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000',
       USER_CLIENT_ID: { 'Ref': 'UserClient'},
       USER_POOL_ID: { 'Ref': 'UserPool' },
-      CHATMESSAGES_TABLE: 'ChatMessages-${self:provider.stage}',
+      MESSAGES_TABLE: 'Messages-${self:provider.stage}',
       CHATS_TABLE: 'Chats-${self:provider.stage}',
       CHATS_INDEX: 'ChatsIndex-${self:provider.stage}',
       CONNECTIONS_TABLE: 'Connections-${self:provider.stage}',
@@ -46,7 +46,7 @@ const serverlessConfiguration: AWS = {
           ],
           Resource: [
             {
-              'Fn::GetAtt': ['ChatMessagesTable', 'Arn']
+              'Fn::GetAtt': ['MessagesTable', 'Arn']
             },
             {
               'Fn::GetAtt': ['ChatsTable', 'Arn']
@@ -199,10 +199,10 @@ const serverlessConfiguration: AWS = {
           ]
         }
       },
-      ChatMessagestable: {
+      Messagestable: {
         Type: "AWS::DynamoDB::Table",
         Properties: {
-          TableName: "${self:provider.environment.CHATMESSAGES_TABLE}",
+          TableName: "${self:provider.environment.MESSAGES_TABLE}",
           BillingMode: 'PAY_PER_REQUEST',
           AttributeDefinitions: [
             {
