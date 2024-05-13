@@ -4,9 +4,9 @@ import { signup, login, verification } from '@functions/user'
 import { 
   addChat, 
   getAllChats, 
-  removeChat 
+  removeChat,
+  updateChat
 } from '@functions/chats'
-import { AttributeDataType } from '@aws-sdk/client-cognito-identity-provider';
 
 const serverlessConfiguration: AWS = {
   service: 'serverless-chat-app',
@@ -64,7 +64,8 @@ const serverlessConfiguration: AWS = {
     verification,
     addChat,
     getAllChats,
-    removeChat
+    removeChat,
+    updateChat
   },
   package: { individually: true },
   custom: {

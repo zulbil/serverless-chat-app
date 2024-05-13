@@ -2,6 +2,8 @@ import { ValidatedEventAPIGatewayProxyEvent, formatJSONResponse } from '@libs/ap
 import { middyfy } from '@libs/lambda';
 import createChatSchema from './schema/createChatSchema';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { chatService } from 'src/services';
+import { v4 as uuidv4 } from 'uuid';
 
 const createChatHandler : ValidatedEventAPIGatewayProxyEvent<typeof createChatSchema> = async (event) => {
   try {
@@ -10,6 +12,10 @@ const createChatHandler : ValidatedEventAPIGatewayProxyEvent<typeof createChatSc
      * @Todo Store message in DynamoDB, and use SNS or Websocket to notify the receiver
      * 
      */
+    // const newChat = {
+    //   id: uuidv4(),
+    //   ...event.body
+    // }
 
     return formatJSONResponse({
       message: 'Chat created successfully...'
