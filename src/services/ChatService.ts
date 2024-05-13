@@ -1,7 +1,7 @@
 import Chat from "./../models/Chat";
 import chatRepository from "./../repositories";
 
-class ChatService {
+export default class ChatService {
 
   constructor() {}
 

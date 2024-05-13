@@ -6,6 +6,7 @@ import {
   getAllChats, 
   removeChat 
 } from '@functions/chats'
+import { AttributeDataType } from '@aws-sdk/client-cognito-identity-provider';
 
 const serverlessConfiguration: AWS = {
   service: 'serverless-chat-app',
@@ -88,6 +89,12 @@ const serverlessConfiguration: AWS = {
             {
               Name: 'email',
               Required: true,
+              Mutable: false 
+            },
+            {
+              Name: 'id',
+              Required: false,
+              AttributeDataType: 'String',
               Mutable: false 
             },
             {
