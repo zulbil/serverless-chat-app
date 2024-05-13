@@ -7,5 +7,5 @@ export default {
     firstname: { type: 'string' },
     password: { type: 'string' }
   },
-  required: ['username','email','password']
+  required: ['username', 'email','password']
 } as const;

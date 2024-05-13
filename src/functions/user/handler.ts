@@ -5,6 +5,7 @@ import loginSchema from './schema/loginSchema';
 import comfirmUserSchema from './schema/comfirmUserSchema';
 import { signUp, initiateAuth, confirmSignUp } from 'src/services/UserAuthService';
 
+
 const signupHandler : ValidatedEventAPIGatewayProxyEvent<typeof signupSchema> = async (event) => {
   try {
     

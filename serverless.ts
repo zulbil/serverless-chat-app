@@ -93,7 +93,7 @@ const serverlessConfiguration: AWS = {
               Mutable: false 
             },
             {
-              Name: 'id',
+              Name: 'userId',
               Required: false,
               AttributeDataType: 'String',
               Mutable: false 

@@ -6,6 +6,8 @@ import {
     AdminInitiateAuthCommand
 } from "@aws-sdk/client-cognito-identity-provider";
 
+import { v4 as uuidv4 } from 'uuid';
+
 const ClientId = process.env.USER_CLIENT_ID;
 const UserPoolId = process.env.USER_POOL_ID;
   
@@ -16,6 +18,7 @@ export const signUp = async ({ Username, Password, email, firstname, lastname })
         { Name: "email", Value: email },
         { Name: "firstname", Value: firstname },
         { Name: "lastname", Value: lastname },
+        { Name: "userId", Value: uuidv4() }
       ]; 
       const command = new SignUpCommand({
         ClientId,
