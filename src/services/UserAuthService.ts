@@ -16,9 +16,9 @@ export const signUp = async ({ Username, Password, email, firstname, lastname })
       const client = new CognitoIdentityProviderClient({});
       const UserAttributes = [
         { Name: "email", Value: email },
-        { Name: "firstname", Value: firstname },
-        { Name: "lastname", Value: lastname },
-        { Name: "userId", Value: uuidv4() }
+        { Name: "custom:firstname", Value: firstname },
+        { Name: "custom:lastname", Value: lastname },
+        { Name: "custom:userId", Value: uuidv4() }
       ]; 
       const command = new SignUpCommand({
         ClientId,
