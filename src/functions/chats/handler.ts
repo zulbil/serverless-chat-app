@@ -61,7 +61,8 @@ const getAllChatsHandler = async (event: APIGatewayProxyEvent) : Promise<APIGate
      */
 
     return formatJSONResponse({
-      message: 'Chat list retrieve successfully...'
+      message: 'Chat list retrieve successfully...',
+      autorizer: event.requestContext.authorizer
     }, 201);
 
   } catch (error) {
