@@ -1,9 +1,9 @@
 export default {
   type: "object",
   properties: {
-    username: { type: 'string'},
-    email: { type: 'string' },
-    password: { type: 'string' }
+    messageText: { type: 'string'},
+    mediaUrls: { type: 'array', items: { type: 'string' }},
+    isUpdated: { type: 'boolean'}
   },
-  required: ['username','email','password']
+  required: ['messageText']
 } as const;

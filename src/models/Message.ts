@@ -4,6 +4,6 @@
     chatId: string;
     senderId?: string;
     messageText?: string;
-    mediaUrls?: string;
+    mediaUrls?: string[];
     isUpdated?: boolean;
 }

@@ -5,4 +5,5 @@ export default interface Chat {
     lastMessage?: string;
     lastMessageTimestamp: string;
     chatStatus?: string;
+    startedBy?:string; 
 }
