@@ -1,107 +1,107 @@
-import { DocumentClient } from "aws-sdk/clients/dynamodb";
+import { 
+  DynamoDBClient, 
+  PutItemCommand, 
+  GetItemCommand, 
+  UpdateItemCommand, 
+  DeleteItemCommand, 
+  QueryCommand,
+  ResourceNotFoundException 
+} from "@aws-sdk/client-dynamodb";
+import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
+import Message from "../models/Message";
 
 export default class MessageRepository {
-    private messagesTable: string           =  process.env.MESSAGES_TABLE;
-    private indexName: string               =  process.env.TODOS_CREATED_AT_INDEX; 
+  private readonly dynamoDBClient: DynamoDBClient; 
+  private readonly tableName: string = process.env.MESSAGES_TABLE;
+  private readonly indexName: string = process.env.MESSAGES_CHAT_ID_INDEX;
 
-    constructor(private docClient: DocumentClient) {}
-    /*
-    async getTodos(userId: string): Promise<TodoItem[]> {
-        this.logger.info('Performing query operation on todo table index');
-        const result = await this.docClient.query({
-          TableName: this.todosTable,
-          IndexName: this.indexName,
-          KeyConditionExpression: 'userId = :userId',
-          ExpressionAttributeValues: {
-            ':userId' : userId
-          }
-        }).promise();
-    
-        const items = result.Items
-    
-        return items as TodoItem[]
-    }
+  constructor(dynamoDBClient: DynamoDBClient) {
+    this.dynamoDBClient = dynamoDBClient;
+  }
 
-    async getTodo(userId: string, todoId: string): Promise<TodoItem> {
-      this.logger.info('Performing query operation on todo table index');
-      const result = await this.docClient.query({
-        TableName: this.todosTable,
-        IndexName: this.indexName,
-        KeyConditionExpression: 'userId = :userId, todoId = :todoId',
-        ExpressionAttributeValues: {
-          ':userId' : userId,
-          ':todoId' : todoId
-        }
-      }).promise();
-  
-      const item = result.Items[0]
-  
-      return item as TodoItem
-    }
-    
-    async createTodo(todoItem: TodoItem): Promise<TodoItem> {
-      this.logger.info('Performing put operation on todo table');
-      await this.docClient.put({
-        TableName: this.todosTable,
-        Item: todoItem
-      }).promise()
-  
-      return todoItem;
-    }
-    
-    async updateTodo(todoId: string, userId: string, todoItem: Partial<TodoUpdate>): Promise<TodoUpdate> {
-      this.logger.info('Performing update operation on todo table');
-      const updated = await this.docClient
-          .update({
-              TableName: this.todosTable,
-              Key: { 
-                userId,
-                todoId 
-              },
-              UpdateExpression:
-                  "set #name = :name, #dueDate = :dueDate, #done = :done",
-              ExpressionAttributeNames: {
-                  "#name": "name",
-                  "#dueDate": "dueDate",
-                  "#done": "done"
-              },
-              ExpressionAttributeValues: {
-                  ":name": todoItem.name,
-                  ":dueDate": todoItem.dueDate,
-                  ":done": todoItem.done
-              },
-              ReturnValues: "ALL_NEW",
-          })
-          .promise();
-      return updated.Attributes as TodoUpdate;
-    }
+  async createMessage(message: Message): Promise<Message> {
+    const params = {
+      TableName: this.tableName,
+      Item: marshall(message),
+    };
 
-    async updateTodoAttachment(todoId: string, userId: string, attachmentUrl: string): Promise<any> {
-      this.logger.info('Performing update attachment operation on todo table');
-      const updated = await this.docClient
-          .update({
-              TableName: this.todosTable,
-              Key: { userId, todoId },
-              UpdateExpression: "set #attachmentUrl = :attachmentUrl",
-              ExpressionAttributeNames: { "#attachmentUrl": "attachmentUrl" },
-              ExpressionAttributeValues: {
-                  ":attachmentUrl": attachmentUrl
-              },
-              ReturnValues: "ALL_NEW",
-          })
-          .promise();
-      return updated.Attributes as any;
+    try {
+      await this.dynamoDBClient.send(new PutItemCommand(params));
+      return message;
+    } catch (err) {
+      console.error("Error creating message:", err);
+      throw err;
     }
-  
-    async deleteTodo(todoId: string, userId: string): Promise<any> {
-      this.logger.info('Performing delete operation on todo table');
-        return await this.docClient.delete({
-            TableName: this.todosTable,
-            Key: { 
-              userId,
-              todoId
-            }
-        }).promise();
+  }
+
+  async getMessageById(id: string): Promise<Message | null> {
+    const params = {
+      TableName: this.tableName,
+      Key: marshall({ id }),
+    };
+
+    try {
+      const { Item } = await this.dynamoDBClient.send(new GetItemCommand(params));
+      return Item ? unmarshall(Item) as Message : null;
+    } catch (err) {
+      if (err instanceof ResourceNotFoundException) {
+        console.error(`Message with ID ${id} not found`);
+      } else {
+        console.error("Error getting message:", err);
+      }
+      throw err;
     }
-    */
+  }
+
+  async updateMessage(message: Message): Promise<Message> {
+    const params = {
+      TableName: this.tableName,
+      Key: marshall({ id: message.id }),
+      UpdateExpression: "set messageText = :messageText, mediaUrls = :mediaUrls, isUpdated = :isUpdated",
+      ExpressionAttributeValues: marshall({
+        ":messageText": message.messageText,
+        ":mediaUrls": message.mediaUrls,
+        ":isUpdated": message.isUpdated,
+      }),
+    };
+
+    try {
+      await this.dynamoDBClient.send(new UpdateItemCommand(params));
+      return message;
+    } catch (err) {
+      console.error("Error updating message:", err);
+      throw err;
+    }
+  }
+
+  async deleteMessage(id: string): Promise<void> {
+    const params = {
+      TableName: this.tableName,
+      Key: marshall({ id }),
+    };
+
+    try {
+      await this.dynamoDBClient.send(new DeleteItemCommand(params));
+    } catch (err) {
+      console.error("Error deleting message:", err);
+      throw err;
+    }
+  }
+
+  async listMessagesByChatId(chatId: string): Promise<Message[]> {
+    const params = {
+      TableName: this.tableName,
+      IndexName: this.indexName,
+      KeyConditionExpression: "chatId = :chatId",
+      ExpressionAttributeValues: marshall({ ":chatId": chatId }),
+    };
+
+    try {
+      const { Items } = await this.dynamoDBClient.send(new QueryCommand(params));
+      return Items ? Items.map((item) => unmarshall(item) as Message) : [];
+    } catch (err) {
+      console.error("Error listing messages by chatId:", err);
+      throw err;
+    }
+  }
 }

@@ -5,10 +5,12 @@ import messageSchema from './schema/messageSchema';
 const sendMessageHandler : ValidatedEventAPIGatewayProxyEvent<typeof messageSchema> = async (event) => {
   try {
     
-    /**
-     * @Todo Store message in DynamoDB, and use SNS or Websocket to notify the receiver
-     * 
-     */
+    const userId = event.requestContext?.authorizer?.claims["custom:userId"];
+    const chatId = event.pathParameters.chatId;
+    const message = event.body.message;
+    console.log('UserId :', userId);
+    console.log('ChatId :', chatId);
+    console.log('Message :', message);
 
     return formatJSONResponse({
       message: 'Message sent successfully...'
