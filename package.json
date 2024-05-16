@@ -13,6 +13,7 @@
     "@aws-sdk/client-cognito-identity-provider": "^3.465.0",
     "@aws-sdk/client-dynamodb": "^3.552.0",
     "@aws-sdk/client-xray": "^3.552.0",
+    "@aws-sdk/util-dynamodb": "^3.577.0",
     "@middy/core": "^3.4.0",
     "@middy/http-json-body-parser": "^3.4.0",
     "uuid": "^9.0.1"
