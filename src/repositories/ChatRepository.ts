@@ -72,7 +72,7 @@ export default class ChatRepository {
         lastMessage: Item.lastMessage.S || undefined,
         lastMessageTimestamp: Item.lastMessageTimestamp.S!,
         chatStatus: Item.chatStatus.S || undefined
-      };
+      } as Chat;
     } catch (err) {
       if (err instanceof ResourceNotFoundException) {
         console.error(`Chat with ID ${chatId} not found`);
