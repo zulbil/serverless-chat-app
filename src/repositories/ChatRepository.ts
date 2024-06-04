@@ -34,17 +34,18 @@ export default class ChatRepository {
     } as PutItemCommandInput;
   
     try {
-      const { Attributes } = await this.dynamoDBClient.send(new PutItemCommand(params));
-      if (!Attributes) {
+      const data = await this.dynamoDBClient.send(new PutItemCommand(params));
+      const status = data['$metadata']['httpStatusCode'];
+      if (status !== 200) {
         throw new Error(`Failed to create chat with ID ${chat.id}`);
       }
       return {
-        id: Attributes.id.S!,
-        participants: Attributes.participants.S!,
-        createdAt: Attributes.createdAt.S!,
-        lastMessage: Attributes.lastMessage.S || undefined,
-        lastMessageTimestamp: Attributes.lastMessageTimestamp.S!,
-        chatStatus: Attributes.chatStatus.S || undefined,
+        id: chat.id,
+        participants: chat.participants,
+        createdAt: chat.createdAt,
+        lastMessage: chat.lastMessage || undefined,
+        lastMessageTimestamp: chat.lastMessageTimestamp,
+        chatStatus: chat.chatStatus || undefined,
       } as Chat;
     } catch (err) {
       console.error("Error creating chat:", err);

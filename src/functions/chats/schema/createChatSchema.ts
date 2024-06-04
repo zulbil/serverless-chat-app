@@ -1,11 +1,7 @@
 export default {
   type: "object",
   properties: {
-    participants: { type: 'string'},
-    createdAt: { type: 'string' },
-    lastMessage: { type: 'string' },
-    lastMessageTimestamp: { type: 'string' },
-    chatStatus: { type: 'string' }
+    participants: { type: "array", items: { type: "string" } }
   },
-  required: ['participants', 'createdAt', 'chatStatus']
+  required: ['participants']
 } as const;
