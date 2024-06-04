@@ -20,6 +20,8 @@ const createChatHandler : ValidatedEventAPIGatewayProxyEvent<typeof createChatSc
       startedBy: userId
     } as Chat
 
+    console.log('New chat :', newChat);
+
     const createChat = await chatService.createChat(newChat);
 
     return formatJSONResponse({
@@ -60,6 +62,7 @@ const updateChatHandler : ValidatedEventAPIGatewayProxyEvent<typeof createChatSc
 const getAllChatsHandler = async (event: APIGatewayProxyEvent) : Promise<APIGatewayProxyResult> => {
   try {
     const userId = event.requestContext?.authorizer?.claims["custom:userId"]; 
+    console.log('User id :', userId);
     const chats = await chatService.getUserChats(userId);
     return formatJSONResponse({
       message: 'Chat list retrieve successfully...',

@@ -32,30 +32,30 @@ const serverlessConfiguration: AWS = {
       CONNECTIONS_TABLE: 'Connections-${self:provider.stage}',
       APP_NAME: 'serverless-chat-app'
     },
-    iam: {
-      role: {
-        statements: [{
-          Effect: "Allow",
-          Action: [
-            "dynamodb:DescribeTable",
-            "dynamodb:Query",
-            "dynamodb:Scan",
-            "dynamodb:GetItem",
-            "dynamodb:PutItem",
-            "dynamodb:UpdateItem",
-            "dynamodb:DeleteItem",
-          ],
-          Resource: [
-            {
-              'Fn::GetAtt': ['MessagesTable', 'Arn']
-            },
-            {
-              'Fn::GetAtt': ['ChatsTable', 'Arn']
-            }
-          ]
-        }],
-      },
-    }
+    // iam: {
+    //   role: {
+    //     statements: [{
+    //       Effect: "Allow",
+    //       Action: [
+    //         "dynamodb:DescribeTable",
+    //         "dynamodb:Query",
+    //         "dynamodb:Scan",
+    //         "dynamodb:GetItem",
+    //         "dynamodb:PutItem",
+    //         "dynamodb:UpdateItem",
+    //         "dynamodb:DeleteItem",
+    //       ],
+    //       Resource: [
+    //         {
+    //           'Fn::GetAtt': ['MessagesTable', 'Arn']
+    //         },
+    //         {
+    //           'Fn::GetAtt': ['ChatsTable', 'Arn']
+    //         }
+    //       ]
+    //     }],
+    //   },
+    // }
   },
   // import the function via paths
   functions: { 
@@ -173,6 +173,33 @@ const serverlessConfiguration: AWS = {
                       "cognito-idp:AdminInitiateAuth"
                     ],
                     Resource: ["*"]
+                  }
+                ]
+              }
+            },
+            {
+              PolicyName: 'DynamoDBPolicy',
+              PolicyDocument: {
+                Version: '2012-10-17',
+                Statement: [
+                  {
+                    Effect: "Allow",
+                    Action: [
+                      "dynamodb:Query",
+                      "dynamodb:Scan",
+                      "dynamodb:GetItem",
+                      "dynamodb:PutItem",
+                      "dynamodb:UpdateItem",
+                      "dynamodb:DeleteItem",
+                    ],
+                    Resource: [
+                      {
+                        'Fn::GetAtt': ['Messagestable', 'Arn']
+                      },
+                      {
+                        'Fn::GetAtt': ['ChatsTable', 'Arn']
+                      }
+                    ]
                   }
                 ]
               }
