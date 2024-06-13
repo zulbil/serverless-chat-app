@@ -4,6 +4,7 @@ import {
     GetItemCommand, 
     UpdateItemCommand, 
     DeleteItemCommand, 
+    DeleteItemCommandInput,
     QueryCommand,
     ResourceNotFoundException, 
     PutItemCommandInput,
@@ -53,44 +54,41 @@ export default class ChatRepository {
     }
   }
 
-  async getChat(chatId: string): Promise<Chat|null> {
+  async getChat(chatId: string): Promise<Chat | null> {
     const params = {
       TableName: this.tableName,
       Key: {
         id: { S: chatId },
       },
     };
-
+  
     try {
-      const { Item } = await this.dynamoDBClient.send(new GetItemCommand(params));
-      if (!Item) {
-        throw new Error(`Chat with ID ${chatId} not found`);
+      const data = await this.dynamoDBClient.send(new GetItemCommand(params));
+      const status = data['$metadata']['httpStatusCode'];
+      if (status !== 200) {
+        throw new Error(`Failed to get chat with ID ${chatId}`);
       }
-      return {
-        id: Item.id.S!,
-        participants: Item.participants.S!,
-        createdAt: Item.createdAt.S!,
-        lastMessage: Item.lastMessage.S || undefined,
-        lastMessageTimestamp: Item.lastMessageTimestamp.S!,
-        chatStatus: Item.chatStatus.S || undefined
-      } as Chat;
+      return data.Item ? {
+        id: data.Item.id.S!,
+        participants: data.Item.participants.S!,
+        createdAt: data.Item.createdAt.S!,
+        lastMessage: data.Item.lastMessage.S || undefined,
+        lastMessageTimestamp: data.Item.lastMessageTimestamp.S!,
+        chatStatus: data.Item.chatStatus.S || undefined,
+      } as Chat : null;
     } catch (err) {
       if (err instanceof ResourceNotFoundException) {
-        console.error(`Chat with ID ${chatId} not found`);
-      } else {
-        console.error("Error getting chat:", err);
+        return null;
       }
-      throw err; // or handle the error in a different way
+      console.error("Error getting chat:", err);
+      throw err;
     }
   }
 
   async getUserChats(userId: string): Promise<Chat[]> {
     const params = {
-      TableName: this.tableName,
-      KeyConditionExpression: "contains(#participants, :userId)",
-    //   ExpressionAttributeNames: {
-    //     "#participants": "participants",
-    //   },
+      TableName: this.tableName, 
+      FilterExpression: "contains(#participants, :userId)",
       ExpressionAttributeValues: {
         ":userId": { S: userId },
       },
@@ -106,8 +104,12 @@ export default class ChatRepository {
     };
 
     try {
-      const { Items } = await this.dynamoDBClient.send(new QueryCommand(params));
-      return Items!.map((item) => ({
+      const data = await this.dynamoDBClient.send(new QueryCommand(params));
+      const status = data['$metadata']['httpStatusCode'];
+      if (status !== 200) {
+        throw new Error(`Failed to get user chats with ID ${userId}`);
+      }
+      return data?.Items!.map((item) => ({
         id: item.id.S!,
         participants: item.participants.S!,
         createdAt: item.createdAt.S!,
@@ -117,17 +119,17 @@ export default class ChatRepository {
       })) as Chat[];
     } catch (err) {
       console.error("Error getting user chats:", err);
-      throw err;
+      throw err
     }
   }
 
-  async updateChat(chat: Chat): Promise<Chat> {
-    const params = {
+async updateChat(chat: Chat): Promise<Chat> {
+    const params: UpdateItemCommandInput = {
       TableName: this.tableName,
       Key: {
         id: { S: chat.id },
       },
-      UpdateExpression: "set #participants = :participants, #lastMessage = :lastMessage, #lastMessageTimestamp = :lastMessageTimestamp, #chatStatus = :chatStatus",
+      UpdateExpression: "SET #participants = :participants, #lastMessage = :lastMessage, #lastMessageTimestamp = :lastMessageTimestamp, #chatStatus = :chatStatus",
       ExpressionAttributeNames: {
         "#participants": "participants",
         "#lastMessage": "lastMessage",
@@ -140,40 +142,46 @@ export default class ChatRepository {
         ":lastMessageTimestamp": { S: chat.lastMessageTimestamp },
         ":chatStatus": { S: chat.chatStatus || "" },
       },
-      ReturnValues: "ALL_NEW"
-    } as UpdateItemCommandInput;
+      ReturnValues: "ALL_NEW",
+    };
   
     try {
-      const { Attributes } = await this.dynamoDBClient.send(new UpdateItemCommand(params));
-      if (!Attributes) {
+      const data = await this.dynamoDBClient.send(new UpdateItemCommand(params));
+      const status: number = data['$metadata']['httpStatusCode'];
+      if (status !== 200) {
         throw new Error(`Failed to update chat with ID ${chat.id}`);
       }
       return {
-        id: Attributes.id.S!,
-        participants: Attributes.participants.S!,
-        createdAt: Attributes.createdAt.S!,
-        lastMessage: Attributes.lastMessage.S || undefined,
-        lastMessageTimestamp: Attributes.lastMessageTimestamp.S!,
-        chatStatus: Attributes.chatStatus.S || undefined,
+        id: chat.id,
+        participants: chat.participants,
+        createdAt: chat.createdAt,
+        lastMessage: chat.lastMessage || undefined,
+        lastMessageTimestamp: chat.lastMessageTimestamp,
+        chatStatus: chat.chatStatus || undefined,
       } as Chat;
-    } catch (error) {
-      console.error("Error updating chat:", error);
-      throw error; // or handle the error in a different way
-    }
-  }
+    } catch (err) {
+      console.error("Error updating chat:", err);
+      throw err;
+    } 
+}
 
   async deleteChat(chatId: string): Promise<void> {
-    const params = {
+    const params: DeleteItemCommandInput = {
       TableName: this.tableName,
       Key: {
         id: { S: chatId },
       },
     };
+  
     try {
-        await this.dynamoDBClient.send(new DeleteItemCommand(params));    
-    } catch (error) {
-        console.error("Error deleting chat :", error);
-        throw error;
+      const data = await this.dynamoDBClient.send(new DeleteItemCommand(params));
+      const status: number = data['$metadata']['httpStatusCode'];
+      if (status !== 200) {
+        throw new Error(`Failed to delete chat with ID ${chatId}`);
+      }
+    } catch (err) {
+      console.error("Error deleting chat:", err);
+      throw err;
     }
   }
 
