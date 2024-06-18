@@ -4,6 +4,7 @@ import { signup, login, verification } from '@functions/user'
 import { 
   addChat, 
   getAllChats, 
+  getChat,
   removeChat,
   updateChat
 } from '@functions/chats'
@@ -64,6 +65,7 @@ const serverlessConfiguration: AWS = {
     verification,
     addChat,
     getAllChats,
+    getChat,
     removeChat,
     updateChat
   },
@@ -216,20 +218,12 @@ const serverlessConfiguration: AWS = {
             {
               AttributeName: "id",
               AttributeType: "S"
-            },
-            {
-              AttributeName: "lastMessageTimestamp",
-              AttributeType: "S"
             }
           ],
           KeySchema: [
             {
               AttributeName: "id",
               KeyType: "HASH"
-            },
-            {
-              AttributeName: "lastMessageTimestamp",
-              KeyType: "RANGE"
             }
           ]
         }

@@ -30,6 +30,7 @@ export default class ChatRepository {
         lastMessage: { S: chat.lastMessage || "" },
         lastMessageTimestamp: { S: chat.lastMessageTimestamp },
         chatStatus: { S: chat.chatStatus || "" },
+        startedBy: { S: chat.startedBy || "" }
       },
       ReturnValues: "ALL_OLD", // Return the new item after creation
     } as PutItemCommandInput;
@@ -47,6 +48,7 @@ export default class ChatRepository {
         lastMessage: chat.lastMessage || undefined,
         lastMessageTimestamp: chat.lastMessageTimestamp,
         chatStatus: chat.chatStatus || undefined,
+        startedBy: chat.startedBy || undefined
       } as Chat;
     } catch (err) {
       console.error("Error creating chat:", err);
@@ -58,12 +60,15 @@ export default class ChatRepository {
     const params = {
       TableName: this.tableName,
       Key: {
-        id: { S: chatId },
-      },
+        id: { S: chatId }
+      }
     };
   
     try {
+      console.log("Getting chat with ID:", chatId);
+      console.log("Params:", params);
       const data = await this.dynamoDBClient.send(new GetItemCommand(params));
+      console.log("Data:", data);
       const status = data['$metadata']['httpStatusCode'];
       if (status !== 200) {
         throw new Error(`Failed to get chat with ID ${chatId}`);
@@ -74,7 +79,7 @@ export default class ChatRepository {
         createdAt: data.Item.createdAt.S!,
         lastMessage: data.Item.lastMessage.S || undefined,
         lastMessageTimestamp: data.Item.lastMessageTimestamp.S!,
-        chatStatus: data.Item.chatStatus.S || undefined,
+        chatStatus: data.Item.chatStatus.S || undefined
       } as Chat : null;
     } catch (err) {
       if (err instanceof ResourceNotFoundException) {
@@ -124,24 +129,47 @@ export default class ChatRepository {
   }
 
 async updateChat(chat: Chat): Promise<Chat> {
+    let UpdateExpression = "";
+    let ExpressionAttributeValues = {} as any;
+    let ExpressionAttributeNames = {} as any;
+    if (chat.lastMessage) {
+      if (UpdateExpression) {
+        UpdateExpression += ", ";
+      } else {
+        UpdateExpression += "SET ";
+      }
+      UpdateExpression += "#lastMessage = :lastMessage";
+      ExpressionAttributeValues[":lastMessage"] = { S: chat.lastMessage };
+      ExpressionAttributeNames["#lastMessage"] = "lastMessage";
+    }
+    if (chat.lastMessageTimestamp) {
+      if (UpdateExpression) {
+        UpdateExpression += ", ";
+      } else {
+        UpdateExpression += "SET ";
+      }
+      UpdateExpression += "#lastMessageTimestamp = :lastMessageTimestamp";
+      ExpressionAttributeValues[":lastMessageTimestamp"] = { S: chat.lastMessageTimestamp };
+      ExpressionAttributeNames["#lastMessageTimestamp"] = "lastMessageTimestamp";
+    }
+    if (chat.chatStatus) {
+      if (UpdateExpression) {
+        UpdateExpression += ", ";
+      } else {
+        UpdateExpression += "SET ";
+      }
+      UpdateExpression += "#chatStatus = :chatStatus";
+      ExpressionAttributeValues[":chatStatus"] = { S: chat.chatStatus };
+      ExpressionAttributeNames["#chatStatus"] = "chatStatus";
+    }
     const params: UpdateItemCommandInput = {
       TableName: this.tableName,
       Key: {
         id: { S: chat.id },
       },
-      UpdateExpression: "SET #participants = :participants, #lastMessage = :lastMessage, #lastMessageTimestamp = :lastMessageTimestamp, #chatStatus = :chatStatus",
-      ExpressionAttributeNames: {
-        "#participants": "participants",
-        "#lastMessage": "lastMessage",
-        "#lastMessageTimestamp": "lastMessageTimestamp",
-        "#chatStatus": "chatStatus",
-      },
-      ExpressionAttributeValues: {
-        ":participants": { S: chat.participants },
-        ":lastMessage": { S: chat.lastMessage || "" },
-        ":lastMessageTimestamp": { S: chat.lastMessageTimestamp },
-        ":chatStatus": { S: chat.chatStatus || "" },
-      },
+      UpdateExpression,
+      ExpressionAttributeNames,
+      ExpressionAttributeValues,
       ReturnValues: "ALL_NEW",
     };
   

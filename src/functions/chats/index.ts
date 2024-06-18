@@ -51,6 +51,27 @@ export const getAllChats = {
   role: 'LambdaRole'
 };
 
+export const getChat = {
+  handler: `${handlerPath(__dirname)}/handler.getChat`,
+  events: [
+    {
+      http: {
+        method: 'GET',
+        path: 'chats/{chatId}',
+        cors: true,
+        authorizer: {
+          name: 'PrivateAuthorizer',
+          type: 'COGNITO_USER_POOLS',
+          arn: {
+            'Fn::GetAtt': ['UserPool', 'Arn']
+          },
+          claims: ["email"]
+        }
+      },
+    },
+  ],
+  role: 'LambdaRole'
+};
 
 export const updateChat = {
   handler: `${handlerPath(__dirname)}/handler.updateChat`,
