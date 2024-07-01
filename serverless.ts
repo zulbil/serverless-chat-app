@@ -29,34 +29,10 @@ const serverlessConfiguration: AWS = {
       USER_POOL_ID: { 'Ref': 'UserPool' },
       MESSAGES_TABLE: 'Messages-${self:provider.stage}',
       CHATS_TABLE: 'Chats-${self:provider.stage}',
-      CHATS_INDEX: 'ChatsIndex-${self:provider.stage}',
+      CHATS_INDEX: 'Chats-Particpants-Index-${self:provider.stage}',
       CONNECTIONS_TABLE: 'Connections-${self:provider.stage}',
       APP_NAME: 'serverless-chat-app'
-    },
-    // iam: {
-    //   role: {
-    //     statements: [{
-    //       Effect: "Allow",
-    //       Action: [
-    //         "dynamodb:DescribeTable",
-    //         "dynamodb:Query",
-    //         "dynamodb:Scan",
-    //         "dynamodb:GetItem",
-    //         "dynamodb:PutItem",
-    //         "dynamodb:UpdateItem",
-    //         "dynamodb:DeleteItem",
-    //       ],
-    //       Resource: [
-    //         {
-    //           'Fn::GetAtt': ['MessagesTable', 'Arn']
-    //         },
-    //         {
-    //           'Fn::GetAtt': ['ChatsTable', 'Arn']
-    //         }
-    //       ]
-    //     }],
-    //   },
-    // }
+    }
   },
   // import the function via paths
   functions: { 
@@ -216,14 +192,41 @@ const serverlessConfiguration: AWS = {
           BillingMode: 'PAY_PER_REQUEST',
           AttributeDefinitions: [
             {
-              AttributeName: "id",
+              AttributeName: "startedBy",
+              AttributeType: "S"
+            },
+            {
+              AttributeName: "createdAt",
+              AttributeType: "S"
+            },
+            {
+              AttributeName: "participants",
               AttributeType: "S"
             }
           ],
           KeySchema: [
             {
-              AttributeName: "id",
+              AttributeName: "startedBy",
               KeyType: "HASH"
+            },
+            {
+              AttributeName: "createdAt",
+              KeyType: "RANGE"
+            }
+          ],
+          GlobalSecondaryIndexes: [
+            {
+              IndexName: "${self:provider.environment.CHATS_INDEX}",
+              KeySchema: [
+                {
+                  AttributeName: 'participants',
+                  KeyType: 'HASH'
+                }
+              ],
+              Projection: {
+                ProjectionType: 'INCLUDE',
+                NonKeyAttributes: ['participants', 'lastMessage', 'lastMessageTimestamp', 'chatStatus']
+              }
             }
           ]
         }
