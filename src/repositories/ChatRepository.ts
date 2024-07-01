@@ -89,44 +89,72 @@ export default class ChatRepository {
       throw err;
     }
   }
-
-  async getUserChats(userId: string): Promise<Chat[]> {
+  
+  async getChatsByUser(userId: string): Promise<Chat[]> {
     const params = {
-      TableName: this.tableName, 
-      FilterExpression: "contains(#participants, :userId)",
+      TableName: this.tableName,
+      KeyConditionExpression: "startedBy = :startedBy",
       ExpressionAttributeValues: {
-        ":userId": { S: userId },
-      },
-      ProjectionExpression: "#id, #participants, #createdAt, #lastMessage, #lastMessageTimestamp, #chatStatus",
-      ExpressionAttributeNames: {
-        "#id": "id",
-        "#participants": "participants",
-        "#createdAt": "createdAt",
-        "#lastMessage": "lastMessage",
-        "#lastMessageTimestamp": "lastMessageTimestamp",
-        "#chatStatus": "chatStatus",
-      },
+        ":startedBy": { S: userId }
+      }
     };
-
+  
     try {
       const data = await this.dynamoDBClient.send(new QueryCommand(params));
       const status = data['$metadata']['httpStatusCode'];
       if (status !== 200) {
-        throw new Error(`Failed to get user chats with ID ${userId}`);
+        throw new Error(`Failed to get chats for user ${userId}`);
       }
-      return data?.Items!.map((item) => ({
-        id: item.id.S!,
-        participants: item.participants.S!,
-        createdAt: item.createdAt.S!,
-        lastMessage: item.lastMessage.S || undefined,
-        lastMessageTimestamp: item.lastMessageTimestamp.S!,
-        chatStatus: item.chatStatus.S || undefined,
-      })) as Chat[];
+      return data.Items ? data.Items.map((item) => {
+        return {
+          id: item.id.S!,
+          participants: item.participants.S!,
+          createdAt: item.createdAt.S!,
+          lastMessage: item.lastMessage.S || undefined,
+          lastMessageTimestamp: item.lastMessageTimestamp.S!,
+          chatStatus: item.chatStatus.S || undefined
+        } as Chat;
+      }) : [];
     } catch (err) {
-      console.error("Error getting user chats:", err);
-      throw err
+      console.error("Error getting chats:", err);
+      throw err;
     }
   }
+
+  async getChatsByParticipant(participant: string): Promise<Chat[]> {
+    const params = {
+      TableName: this.tableName,
+      IndexName: process.env.CHATS_INDEX,
+      KeyConditionExpression: "participants = :participants",
+      ExpressionAttributeValues: {
+        ":participants": { S: participant }
+      },
+      ProjectionExpression: "id, participants, createdAt, lastMessage, lastMessageTimestamp, chatStatus"
+    };
+  
+    try {
+      const data = await this.dynamoDBClient.send(new QueryCommand(params));
+      const status = data['$metadata']['httpStatusCode'];
+      if (status !== 200) {
+        throw new Error(`Failed to get chats for participant ${participant}`);
+      }
+      return data.Items ? data.Items.map((item) => {
+        return {
+          id: item.id.S!,
+          participants: item.participants.S!,
+          createdAt: item.createdAt.S!,
+          lastMessage: item.lastMessage.S || undefined,
+          lastMessageTimestamp: item.lastMessageTimestamp.S!,
+          chatStatus: item.chatStatus.S || undefined
+        } as Chat;
+      }) : [];
+    } catch (err) {
+      console.error("Error getting chats:", err);
+      throw err;
+    }
+  }
+  
+
 
 async updateChat(chat: Chat): Promise<Chat> {
     let UpdateExpression = "";
