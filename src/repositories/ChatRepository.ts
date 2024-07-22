@@ -98,7 +98,7 @@ export default class ChatRepository {
         ":startedBy": { S: userId }
       }
     };
-  
+
     try {
       const data = await this.dynamoDBClient.send(new QueryCommand(params));
       const status = data['$metadata']['httpStatusCode'];

@@ -14,7 +14,7 @@ export default class ChatService {
   }
 
   async getUserChats(userId: string): Promise<Chat[]> {
-    return chatRepository.getUserChats(userId);
+    return chatRepository.getChatsByUser(userId);
   }
 
   async updateChat(chat: Chat): Promise<Chat> {
